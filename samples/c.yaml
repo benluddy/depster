@@ -1,0 +1,8 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: test-catalogsource
+  namespace: test-namespace
+spec:
+  sourceType: grpc
+  address: localhost:50051

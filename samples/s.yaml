@@ -1,0 +1,9 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: test-subscription
+  namespace: test-namespace
+spec:
+  name: eclipse-che
+  source: test-catalogsource
+  sourceNamespace: test-namespace
