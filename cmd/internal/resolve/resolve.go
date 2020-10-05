@@ -84,7 +84,7 @@ func AddTo(c commander.Interface) {
 				nsnames = append(nsnames, ns.GetName())
 			}
 
-			output, err := r.SolveOperators(nsnames, nil, b.subscriptions)
+			output, err := r.SolveOperators(nsnames, b.csvs, b.subscriptions)
 			if err != nil {
 				return fmt.Errorf("resolution failed: %w", err)
 			}

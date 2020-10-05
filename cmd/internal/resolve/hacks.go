@@ -31,10 +31,17 @@ type InputBuilder struct {
 	namespaces    []*v1.Namespace
 	subscriptions []*v1alpha1.Subscription
 	catalogs      []*v1alpha1.CatalogSource
+	csvs          []*v1alpha1.ClusterServiceVersion
 }
 
 func (b *InputBuilder) Add(in *unstructured.Unstructured) error {
 	switch in.GroupVersionKind() {
+	case v1alpha1.SchemeGroupVersion.WithKind(v1alpha1.ClusterServiceVersionKind):
+		var csv v1alpha1.ClusterServiceVersion
+		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(in.UnstructuredContent(), &csv); err != nil {
+			return fmt.Errorf("failed to convert manifest: %w", err)
+		}
+		b.csvs = append(b.csvs, &csv)
 	case v1alpha1.SchemeGroupVersion.WithKind("CatalogSource"):
 		var c v1alpha1.CatalogSource
 		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(in.UnstructuredContent(), &c); err != nil {
