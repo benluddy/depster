@@ -11,6 +11,10 @@ all: depster
 depster:
 	$(GO) build -o $@ -ldflags '-X $(MODULE)/internal/version.Version=$(VERSION)' .
 
+.PHONY: test
+unit:
+	$(GO) test -coverprofile=coverage.out ./...
+
 .PHONY: clean
 clean:
 	rm -f depster
