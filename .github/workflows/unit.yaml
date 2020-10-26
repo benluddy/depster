@@ -9,6 +9,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: ^1.15.0
+      - run: echo "GOMODCACHE=$(go env GOPATH)/pkg/mod" >> $GITHUB_ENV
+      - uses: actions/cache@v2
+        with:
+          path: ${{ env.GOMODCACHE }}
+          key: gomod-${{ runner.os }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            gomod-${{ runner.os }}-
       - run: make unit
       - run: sed -i'' "s:^github.com/$GITHUB_REPOSITORY/::" coverage.out
       - uses: codecov/codecov-action@v1
