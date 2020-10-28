@@ -3,12 +3,13 @@ GOFLAGS := -trimpath
 GO := go
 MODULE := $(shell $(GO) list -m)
 VERSION := $(shell git describe --always --tags HEAD)$(and $(shell git status --porcelain),+$(shell scripts/worktree-hash.sh))
+BINARY := depster$(shell $(GO) env GOEXE)
 
 .PHONY: all
-all: depster
+all: $(BINARY)
 
-.PHONY: depster
-depster:
+.PHONY: $(BINARY)
+$(BINARY):
 	$(GO) build -o $@ -ldflags '-X $(MODULE)/internal/version.Version=$(VERSION)' .
 
 .PHONY: test
