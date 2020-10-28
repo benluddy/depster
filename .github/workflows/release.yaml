@@ -36,7 +36,7 @@ jobs:
           go-version: '^1.15'
       - run: make depster
       - run: |
-          echo "asset_path=./depster$(go env GOEXE)" >> $GITHUB_ENV
+          echo "asset_path=depster$(go env GOEXE)" >> $GITHUB_ENV
           echo "asset_name=$(go env GOOS)-$(go env GOARCH)-depster$(go env GOEXE)" >> $GITHUB_ENV
       - uses: actions/upload-release-asset@v1
         env:
