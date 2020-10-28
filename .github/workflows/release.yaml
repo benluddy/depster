@@ -25,10 +25,17 @@ jobs:
     strategy:
       matrix:
         os:
-          - ubuntu-latest
-          - macos-latest
-          - windows-latest
-    runs-on: ${{ matrix.os }}
+          - linux
+          - darwin
+          - windows
+        include:
+          - os: windows
+            suffix: .exe
+    env:
+      GOOS: ${{ matrix.os }}
+      GOARCH: amd64
+      GOEXE: ${{ matrix.suffix }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
@@ -38,6 +45,10 @@ jobs:
           echo "asset_path=depster$(go env GOEXE)" >> $GITHUB_ENV
           echo "asset_name=$(go env GOOS)-$(go env GOARCH)-depster$(go env GOEXE)" >> $GITHUB_ENV
       - run: make ${{ env.asset_path }}
+      - run: |
+          sudo apt-get install -y gnupg
+          base64 -d <(printf "${{ secrets.signing_key }}") | gpg --import
+          gpg --detach-sign --armor ${{ env.asset_path }}
       - uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -46,3 +57,11 @@ jobs:
           asset_path: ${{ env.asset_path }}
           asset_name: ${{ env.asset_name }}
           asset_content_type: application/octet-stream
+      - uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ needs.create.outputs.upload_url }}
+          asset_path: ${{ env.asset_path }}.asc
+          asset_name: ${{ env.asset_name }}.asc
+          asset_content_type: application/pgp-signature
