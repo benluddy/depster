@@ -18,7 +18,7 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: ${{ github.ref }}
   upload:
-    needs: draft
+    needs: create
     strategy:
       matrix:
         os:
@@ -39,7 +39,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          upload_url: ${{ needs.draft.outputs.upload_url }}
+          upload_url: ${{ needs.create.outputs.upload_url }}
           asset_path: ${{ env.asset_path }}
           asset_name: ${{ env.asset_name }}
           asset_content_type: application/octet-stream
