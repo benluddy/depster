@@ -77,19 +77,31 @@ func AddTo(c commander.Interface) {
 
 			}
 
-			r := resolver.NewDefaultSatResolver(p, phonyCatalogSourceLister{}, log)
+			sp := resolver.SourceProviderFromRegistryClientProvider(p, log)
+
+			r := resolver.NewDefaultSatResolver(sp, phonyCatalogSourceLister{}, log)
 
 			var nsnames []string
 			for _, ns := range b.namespaces {
 				nsnames = append(nsnames, ns.GetName())
 			}
 
-			output, err := r.SolveOperators(nsnames, b.csvs, b.subscriptions)
+			operators, err := r.SolveOperators(nsnames, b.csvs, b.subscriptions)
 			if err != nil {
 				return fmt.Errorf("resolution failed: %w", err)
 			}
 
-			fmt.Fprintf(cmd.OutOrStdout(), "output: %v\n", output)
+			for _, operator := range operators {
+				fmt.Fprintf(cmd.OutOrStdout(),
+					"---\nBundle: %s\nChannel: %s\nPath: %s\nCatalog: \n- Name: %s\n- Namespace: %s\n",
+					operator.Name,
+					operator.SourceInfo.Channel,
+					operator.BundlePath,
+					operator.SourceInfo.Catalog.Name,
+					operator.SourceInfo.Catalog.Namespace,
+				)
+			}
+
 			return nil
 		},
 	}
