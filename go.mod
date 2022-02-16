@@ -3,11 +3,11 @@ module github.com/benluddy/depster
 go 1.14
 
 require (
-	github.com/operator-framework/api v0.8.0
-	github.com/operator-framework/operator-lifecycle-manager v0.18.2
-	github.com/operator-framework/operator-registry v1.13.6
-	github.com/sirupsen/logrus v1.7.0
-	github.com/spf13/cobra v1.1.1
-	k8s.io/api v0.20.6
-	k8s.io/apimachinery v0.20.6
+	github.com/operator-framework/api v0.11.0
+	github.com/operator-framework/operator-lifecycle-manager v0.20.0
+	github.com/operator-framework/operator-registry v1.17.5
+	github.com/sirupsen/logrus v1.8.1
+	github.com/spf13/cobra v1.2.1
+	k8s.io/api v0.22.2
+	k8s.io/apimachinery v0.22.2
 )
