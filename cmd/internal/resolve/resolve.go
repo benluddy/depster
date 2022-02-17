@@ -91,18 +91,11 @@ func AddTo(c commander.Interface) {
 				return fmt.Errorf("resolution failed: %w", err)
 			}
 
-			for _, operator := range operators {
-				fmt.Fprintf(cmd.OutOrStdout(),
-					"---\nBundle: %s\nChannel: %s\nPath: %s\nCatalog: \n- Name: %s\n- Namespace: %s\n",
-					operator.Name,
-					operator.SourceInfo.Channel,
-					operator.BundlePath,
-					operator.SourceInfo.Catalog.Name,
-					operator.SourceInfo.Catalog.Namespace,
-				)
+			printer := makeTabularPrinter(cmd.OutOrStdout())
+			for _, each := range operators {
+				printer.Print(each)
 			}
-
-			return nil
+			return printer.Close()
 		},
 	}
 	c.AddCommand(resolve)
