@@ -9,6 +9,7 @@ import (
 	"github.com/benluddy/depster/cmd/internal/commander"
 	"github.com/operator-framework/operator-lifecycle-manager/pkg/controller/registry"
 	"github.com/operator-framework/operator-lifecycle-manager/pkg/controller/registry/resolver"
+	"github.com/operator-framework/operator-lifecycle-manager/pkg/controller/registry/resolver/cache"
 	"github.com/operator-framework/operator-registry/pkg/client"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -77,16 +78,26 @@ func AddTo(c commander.Interface) {
 
 			}
 
-			sp := resolver.SourceProviderFromRegistryClientProvider(p, log)
+			sp := &mergedSourceProvider{
+				sps: []cache.SourceProvider{
+					resolver.SourceProviderFromRegistryClientProvider(p, log),
+					resolver.NewCSVSourceProvider(
+						b.ClusterServiceVersionLister(),
+						b.SubscriptionLister(),
+						b.OperatorGroupLister(),
+						log,
+					),
+				},
+			}
 
-			r := resolver.NewDefaultSatResolver(sp, phonyCatalogSourceLister{}, log)
+			r := resolver.NewDefaultResolver(sp, b.PriorityProvider(), log)
 
 			var nsnames []string
 			for _, ns := range b.namespaces {
 				nsnames = append(nsnames, ns.GetName())
 			}
 
-			operators, err := r.SolveOperators(nsnames, b.csvs, b.subscriptions)
+			operators, err := r.Resolve(nsnames, b.subscriptions)
 			if err != nil {
 				return fmt.Errorf("resolution failed: %w", err)
 			}
@@ -99,4 +110,22 @@ func AddTo(c commander.Interface) {
 		},
 	}
 	c.AddCommand(resolve)
+}
+
+type mergedSourceProvider struct {
+	sps    []cache.SourceProvider
+	logger logrus.StdLogger
+}
+
+func (msp *mergedSourceProvider) Sources(namespaces ...string) map[cache.SourceKey]cache.Source {
+	result := make(map[cache.SourceKey]cache.Source)
+	for _, sp := range msp.sps {
+		for key, source := range sp.Sources(namespaces...) {
+			if _, ok := result[key]; ok {
+				msp.logger.Printf("warning: duplicate sourcekey: %q\n", key)
+			}
+			result[key] = source
+		}
+	}
+	return result
 }
