@@ -12,7 +12,7 @@ all: $(BINARY)
 $(BINARY):
 	$(GO) build -o $@ -ldflags '-X $(MODULE)/internal/version.Version=$(VERSION)' .
 
-.PHONY: test
+.PHONY: unit
 unit:
 	$(GO) test -coverprofile=coverage.out ./...
 

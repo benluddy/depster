@@ -4,6 +4,6 @@ metadata:
   name: test-subscription
   namespace: test-namespace
 spec:
-  name: eclipse-che
+  name: cert-manager
   source: test-catalogsource
   sourceNamespace: test-namespace
